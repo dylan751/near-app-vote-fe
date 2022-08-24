@@ -1,0 +1,59 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+body {
+  margin: 0;
+  font-family: 'Helvetica', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #05293c;
+  color: #fff;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+button,
+input,
+textarea,
+select,
+option {
+  outline: none;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 100vh;
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 100vh;
+  border: 3px solid #909395;
+}
+.modal-vote::-webkit-scrollbar-track {
+  border-radius: 100vh;
+  background: transparent;
+  margin: 40px 0 24px;
+}
+.modal-vote::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 100vh;
+  border: 3px solid #909395;
+  margin-top: 20px;
+  height: 20px;
+}
+
+.list-criterias::-webkit-scrollbar-track {
+  border-radius: 100vh;
+  background: transparent;
+  margin: 10px 0 20px;
+}
