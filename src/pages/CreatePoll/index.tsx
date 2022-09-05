@@ -36,6 +36,13 @@ const CreatePoll: React.FC = () => {
     //   gas: '300000000000000', // attached GAS (optional)
     //   amount: '100000000000000000000000', // attached deposit in yoctoNEAR (optional)
     // });
+
+    /**
+     * Batch transactions
+     * 1. Connect to our Smart Contract
+     * 2. Connect to DAO Smart Contract
+     */
+
     await connectToDAO(
       poll.criteria_option_id_array,
       userInfo.id,
