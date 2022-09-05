@@ -12,3 +12,9 @@ export const getCriteriasById = (Criteria_ids: number[], listCriteria: Criteria[
   });
   return newArr;
 };
+export const findCriteriaById = (criteria_id: number, listCriteria: Criteria[]) => {
+  let criteria = listCriteria.find((item) => {
+    if (item.id === criteria_id) return item.description;
+  });
+  return criteria?.description;
+};

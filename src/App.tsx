@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Trending from './pages/Trending';
 import CreatePoll from './pages/CreatePoll';
@@ -7,13 +7,14 @@ import OnlyHeader from './components/Layout/OnlyHeader';
 import CreateOptions from './pages/CreateOptions';
 import Organization from './pages/Organization';
 import CreateCriteria from './pages/CreateCriteria';
-import { useEffect } from 'react';
+import Error from './pages/Error';
 import { getAllCriterias, CriteriasCall } from './recoil/create-criterias/CriteriaStates';
 import { getAllOptions, OptionsCall } from './recoil/create-options/OptionsState';
 import { PollsCall, getAllPolls } from './recoil/create-poll/PollsState';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { UserInfo, getAllUsers, ListUsers, IsMemberState } from './recoil/users/UserInfo';
-import Error from './pages/Error';
+import { sortByCreatedDate, sortUserList } from './utils/SortData';
+import UpdatePoll from './pages/UpdatePoll';
 
 const App: React.FC = () => {
   const setCriteriasCall = useSetRecoilState(CriteriasCall);
@@ -25,35 +26,21 @@ const App: React.FC = () => {
   // Get all criterias, options, info of user logined
   useEffect(() => {
     const getPolls = async () => {
-      const allCriterias = await getAllCriterias();
-      setCriteriasCall(
-        allCriterias.sort((a: any, b: any) => {
-          return b.created_at - a.created_at;
-        }),
-      );
-      const allOptions = await getAllOptions();
-      setOptions(
-        allOptions.sort((a: any, b: any) => {
-          return b.created_at - a.created_at;
-        }),
-      );
-      const allPolls = await getAllPolls();
+      const allCriterias = await getAllCriterias(1000, 0);
+      setCriteriasCall(sortByCreatedDate(allCriterias));
+      // Set Options
+      const allOptions = await getAllOptions(100, 0);
+      setOptions(sortByCreatedDate(allOptions));
+      // Set Polls
+      const allPolls = await getAllPolls(100, 0);
       setPolls(
         allPolls.sort((a: any, b: any) => {
           return b.end_at - a.end_at;
         }),
       );
-      const allUsers = await getAllUsers();
-      const newAllUsers = allUsers.map((user: any) => {
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          walletAddress: user.user_wallet.wallet_address,
-        };
-      });
-      setListUsers(newAllUsers);
+      // Set users
+      const allUsers = await getAllUsers(100, 0);
+      setListUsers(sortUserList(allUsers));
     };
     const getUserInfo = async (accountId: String) => {
       const userData = await window.contract.get_user_by_wallet_address({ wallet_address: accountId });
@@ -106,6 +93,14 @@ const App: React.FC = () => {
                 }
               />
               <Route
+                path="/update-poll/:id"
+                element={
+                  <DefaultLayout>
+                    <UpdatePoll />
+                  </DefaultLayout>
+                }
+              />
+              <Route
                 path="/create-criterias"
                 element={
                   <DefaultLayout>
@@ -125,7 +120,7 @@ const App: React.FC = () => {
                 path="/create-options"
                 element={
                   <DefaultLayout>
-                    <CreateOptions create={true} list={false} />
+                    <CreateOptions create={true} list={false} update={false} />
                   </DefaultLayout>
                 }
               />
@@ -133,7 +128,15 @@ const App: React.FC = () => {
                 path="/all-options"
                 element={
                   <DefaultLayout>
-                    <CreateOptions create={false} list={true} />
+                    <CreateOptions create={false} list={true} update={false} />
+                  </DefaultLayout>
+                }
+              />
+              <Route
+                path="/update-options/:option_id"
+                element={
+                  <DefaultLayout>
+                    <CreateOptions create={false} list={false} update={true} />
                   </DefaultLayout>
                 }
               />

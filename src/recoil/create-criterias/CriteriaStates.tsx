@@ -8,20 +8,27 @@ export const Criterias = atom({
   default: initialCriteriasState,
 });
 
-const initialCriteriasCallState: CriteriaModel[] = [];
 export const CriteriasCall = atom({
   key: 'CRITERIAS_CALL',
-  default: initialCriteriasCallState,
+  default: initialCriteriasState,
 });
 
-export const getAllCriterias = async () => {
+export const getAllCriterias = async (limit: number, from: number) => {
   try {
     // BE API
     // let allCriterias = await request.get('criterias');
     // return allCriterias.data.criterias;
     // NEAR API
-    const allCriterias = await window.contract.get_all_criterias({ limit: 100 });
+    const allCriterias = await window.contract.get_all_criterias({ limit: limit, from_index: from });
     return allCriterias;
+  } catch (error) {
+    console.warn('Error call API Criterias: ', error);
+  }
+};
+export const getCriteriaById = async (id: number) => {
+  try {
+    const criteria = await window.contract.get_criteria_by_id({ criteria_id: id });
+    return criteria;
   } catch (error) {
     console.warn('Error call API Criterias: ', error);
   }

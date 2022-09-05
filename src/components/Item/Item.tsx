@@ -19,6 +19,7 @@ const Item: React.FC<itemProps> = ({ title, icon, active, fontSize, css, line })
       <div className="mr-2">{icon}</div>
       <h3
         className={`
+        truncate
         ${fontSize ? '' : 'text-sm font-light'}
         ${fontSize === 'md' ? 'text-base font-bold' : ''}
       `}

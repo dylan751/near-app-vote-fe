@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { IoTimeOutline, IoEyeOffOutline, IoGlobeOutline } from 'react-icons/io5';
+import { useState } from 'react';
+import { IoTimeOutline } from 'react-icons/io5';
 import { Poll } from '../../recoil/create-poll/PollsState';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { convertDate, convertHours, convertDateSeconds, convertHoursSeconds } from '../../utils/HandleDate';
-import { OptionsCall } from '../../recoil/create-options/OptionsState';
+import { useRecoilState } from 'recoil';
+import { convertDate, convertDateSeconds, convertHoursSeconds } from '../../utils/HandleDate';
+// import { OptionsCall } from '../../recoil/create-options/OptionsState';
 
 interface props {
   validDate: any;
@@ -12,12 +12,12 @@ interface props {
 
 const Setting: React.FC<props> = ({ validDate, setValidDate }) => {
   const [poll, setPoll] = useRecoilState(Poll);
-  const options = useRecoilValue(OptionsCall);
+  // const options = useRecoilValue(OptionsCall);
   const [hours, setHours] = useState<string>('');
   const [date, setDate] = useState<string>('');
-  useEffect(() => {
-    setPoll({ ...poll, poll_option_id: options[0].id });
-  }, [options]);
+  // useEffect(() => {
+  //   setPoll({ ...poll, poll_option_id: options[0].id });
+  // }, [options]);
   return (
     <>
       <h2 className="mt-10 text-xl font-bold text-white">Setting</h2>

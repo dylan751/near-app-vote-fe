@@ -1,13 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IoChevronDown } from 'react-icons/io5';
 import people from '../../../assets/images/people.svg';
 import { selectOption } from '../../../recoil/trending/Selected';
 interface Props {
-  listoption: {
-    id?: number;
-    name?: string;
-    description?: string;
-  }[];
+  optionId: number;
   selected: selectOption[];
   setSelected: React.Dispatch<React.SetStateAction<selectOption[]>>;
   indexCriteria: number;
@@ -17,16 +13,23 @@ interface Props {
 }
 
 export const SelectionBox = (props: Props) => {
-  const { listoption, selected, setSelected, indexCriteria, lengthCriterial, criteriaId, pollId } = props;
+  const { optionId, selected, setSelected, indexCriteria, lengthCriterial, criteriaId, pollId } = props;
   const [isActive, setIsActive] = useState<boolean>(false);
+  const [listOption, setListOption] = useState<string[]>([]);
 
+  useEffect(() => {
+    const getPollOptionById = async () => {
+      const listOption = await window.contract.get_poll_option_by_id({ poll_option_id: optionId });
+      setListOption(listOption.options);
+    };
+    getPollOptionById();
+  }, [optionId]);
   const handleChoseOption = (option: any, indexCriteria: number, criteriaId: number): void => {
     let listSelected: selectOption[] = [...selected];
     let newOption = {
       poll_id: pollId,
       criteria_id: criteriaId,
-      name: option.name,
-      id: option.id,
+      name: option,
       indexCriteria: indexCriteria,
     };
 
@@ -39,6 +42,7 @@ export const SelectionBox = (props: Props) => {
     }
     setIsActive(false);
   };
+
   return (
     <div className="mt-[10px] w-[100%] h-[40px] rounded-[8px]">
       <div
@@ -55,8 +59,7 @@ export const SelectionBox = (props: Props) => {
               {selected[indexCriteria] && <img src={people} className="w-[24px] h-[24px]" alt="" />}
 
               <div>
-                <p className="text-[14px] font-bold text-[#fff]">{selected[indexCriteria].name}</p>
-                <p className="text-[8px]">{selected[indexCriteria]?.description}</p>
+                <p className="text-[14px] font-bold text-[#fff] mx-1">{selected[indexCriteria].name}</p>
               </div>
             </>
           )}
@@ -65,18 +68,17 @@ export const SelectionBox = (props: Props) => {
       </div>
       <div className={`absolute w-[100%] mt-[2px] bg-[#05293C] rounded-[8px] z-10`}>
         {isActive && (
-          <div className=" rounded-[4px] overflow-hidden h-[110px] overflow-y-auto">
-            {listoption &&
-              listoption?.map((option: any) => (
+          <div className=" rounded-[4px] overflow-hidden max-h-[110px] overflow-y-auto">
+            {listOption &&
+              listOption?.map((option: any) => (
                 <div
                   className="flex items-center  px-[20px] py-[8px] cursor-pointer hover:opacity-[0.8] border-b-[0.5px] border-[rgba(255,255,255,0.2)]  "
-                  key={option?.id}
+                  key={option}
                   onClick={() => handleChoseOption(option, indexCriteria, criteriaId)}
                 >
                   <img src={people} className="w-[24px] h-[24px]" alt="" />
                   <div>
-                    <p className="text-[14px] font-bold text-[#fff]">{option.name}</p>
-                    <p className="text-[8px]">{option?.description}</p>
+                    <p className="text-[14px] font-bold text-[#fff] mx-1">{option}</p>
                   </div>
                 </div>
               ))}

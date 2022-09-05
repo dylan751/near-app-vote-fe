@@ -17,15 +17,15 @@ export const IsMemberState = atom({
   default: false,
 });
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (limit: number, from: number) => {
   try {
     // BE API
     // let allCriterias = await request.get('criterias');
     // return allCriterias.data.criterias;
     // NEAR API
-    const allUsers = await window.contract.get_all_users({ limit: 100 });
+    const allUsers = await window.contract.get_all_users({ limit: limit, from_index: from });
     return allUsers;
   } catch (error) {
-    console.warn('Error call API Users: ', error);
+    alert('Error call API Users: ' + error);
   }
 };

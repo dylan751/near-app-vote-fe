@@ -1,10 +1,9 @@
 import Avatar from '../../components/Avatar/Avatar';
 import Item from '../../components/Item/Item';
 import Header from '../../components/Layout/DefaultLayout/Header';
-import { IoHomeOutline, IoPeopleOutline, IoBeerOutline, IoAlbumsOutline } from 'react-icons/io5';
+import { IoPeopleOutline, IoBeerOutline, IoAlbumsOutline } from 'react-icons/io5';
 import AnswerOptions from './AnswerOptions';
 import VoteResult from './VoteResult';
-import { useState } from 'react';
 import Polls from './Polls';
 import Members from './Members';
 import { Link } from 'react-router-dom';
@@ -18,7 +17,7 @@ const Organization: React.FC<props> = ({ state }) => {
     <div className="flex flex-col pb-8">
       <Header />
       {/* Tag menu */}
-      <div className=" px-56 border-b-[1px] border-primary-20 mt-20">
+      <div className="px-2 md:px-8 xl:px-56 border-b-[1px] border-primary-20 mt-20">
         <Avatar name="BTC Studio" size="big" />
         <div className="flex mt-4">
           {/* Members */}
@@ -54,7 +53,7 @@ const Organization: React.FC<props> = ({ state }) => {
         </div>
       </div>
       {/* Content */}
-      <div className="w-full px-56 mt-2">
+      <div className="w-full sm:px-2 md:px-8 xl:px-56 mt-2">
         {state.answerOptions && <AnswerOptions />}
         {state.members && <Members />}
         {state.polls && <Polls />}

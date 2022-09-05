@@ -3,12 +3,15 @@ import { IoBeer, IoIceCream, IoPeople, IoPaperPlane } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import { login } from '../../../../near/utils';
 import { UserInfo, IsMemberState } from '../../../../recoil/users/UserInfo';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useResetRecoilState } from 'recoil';
+import { Options } from '../../../../recoil/create-options/OptionsState';
 function Sidebar() {
   const userInfo = useRecoilValue(UserInfo);
   const isMember = useRecoilValue(IsMemberState);
+  const resetOptionValue = useResetRecoilState(Options);
+
   return (
-    <div className="w-[199px] min-h-[200px] fixed ">
+    <div className="hidden md:block xl:w-48 min-h-[200px] fixed ">
       <>
         <Link
           to={'/'}
@@ -45,6 +48,9 @@ function Sidebar() {
                   ? 'text-[#fff]'
                   : 'text-[rgba(255,255,255,0.6)]'
               }`}
+              onClick={() => {
+                resetOptionValue();
+              }}
             >
               <IoPeople className="mr-[8px] text-2xl" /> Create options
             </Link>

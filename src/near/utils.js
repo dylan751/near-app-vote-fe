@@ -43,6 +43,12 @@ export async function initContract() {
       'get_user_by_wallet_address',
       'is_voted',
       'get_all_is_user_votes',
+      'get_all_results_by_poll_criteria_id',
+      'num_users_vote_for_a_poll',
+      'user_total_supply',
+      'criteria_total_supply',
+      'poll_option_total_supply',
+      'poll_total_supply',
     ],
     // Change methods can modify the state. But you don't receive the returned value when called.
     changeMethods: [
@@ -55,6 +61,7 @@ export async function initContract() {
       'update_user',
       'update_criteria',
       'update_poll',
+      'update_poll_option',
       'vote',
       'delete_user',
       'delete_criteria',
@@ -79,15 +86,3 @@ export function login() {
   // the private key in localStorage.
   window.walletConnection.requestSignIn(nearConfig.contractName);
 }
-
-// export async function set_greeting(message) {
-//   let response = await window.contract.set_greeting({
-//     args: { message: message },
-//   });
-//   return response;
-// }
-
-// export async function get_greeting() {
-//   let greeting = await window.contract.get_greeting();
-//   return greeting;
-// }

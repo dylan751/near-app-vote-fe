@@ -1,5 +1,5 @@
 import { CriteriaModel } from '../../Model/Poll';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { Criterias } from '../../recoil/create-criterias/CriteriaStates';
 import { useRef } from 'react';
 import { IoCheckmark, IoTrash, IoAdd } from 'react-icons/io5';
@@ -45,6 +45,7 @@ const CriteriaItem: React.FC<propsCriteriaItem> = ({ title, order, userId }) => 
           newCriterias[order - 1].description = refInput.current?.value ? refInput.current?.value : '';
           setCriterias(newCriterias);
         }}
+        autoFocus
       />
       <button className="w-[18px] h-[18px] flex justify-center items-center p-[2px] bg-greenL rounded text-white mr-2">
         <IoCheckmark

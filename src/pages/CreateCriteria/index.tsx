@@ -3,11 +3,9 @@ import { IoPaperPlane, IoRefresh } from 'react-icons/io5';
 import BtnGroup from '../../components/BtnGroup/BtnGroup';
 import Button from '../../components/Button/Button';
 import Create from './Create';
-import List from './List';
-import { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { CriteriasCall, Criterias, getAllCriterias } from '../../recoil/create-criterias/CriteriaStates';
-import { useRecoilValue } from 'recoil';
+import CriteriasList from './List';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { Criterias } from '../../recoil/create-criterias/CriteriaStates';
 import { UserInfo } from '../../recoil/users/UserInfo';
 import { Link } from 'react-router-dom';
 interface props {
@@ -15,21 +13,9 @@ interface props {
   list: boolean;
 }
 const CreateCriteria: React.FC<props> = ({ create, list }) => {
-  const [criteriasCall, setCriteriasCall] = useRecoilState(CriteriasCall);
   const [criterias, setCriterias] = useRecoilState(Criterias);
   const userInfo = useRecoilValue(UserInfo);
 
-  // useEffect(() => {
-  //   const getCriterias = async () => {
-  //     const allCriterias = await getAllCriterias();
-  //     setCriteriasCall(
-  //       allCriterias.sort((a: any, b: any) => {
-  //         return b.created_at - a.created_at;
-  //       }),
-  //     );
-  //   };
-  //   getCriterias();
-  // }, []);
   const handleCreateCriteria = async () => {
     try {
       const newList = criterias.filter((item) => {
@@ -53,7 +39,11 @@ const CreateCriteria: React.FC<props> = ({ create, list }) => {
   };
   return (
     <div>
-      <Modal title="Create criterias" avatar={true} icon={<IoPaperPlane className="mt-1 mr-2"></IoPaperPlane>}>
+      <Modal
+        title={create ? 'Create criterias' : 'List criterias'}
+        avatar={true}
+        icon={<IoPaperPlane className="mt-1 mr-2"></IoPaperPlane>}
+      >
         {criterias.length > 0 && create ? (
           <button
             className="w-[18px] h-[18px] flex justify-center items-center p-[2px] bg-primary-30 rounded text-white mr-2 absolute right-8 top-11"
@@ -66,7 +56,7 @@ const CreateCriteria: React.FC<props> = ({ create, list }) => {
           <></>
         )}
         {create ? <Create userId={userInfo.id as number} /> : <></>}
-        {list ? <List data={criteriasCall} /> : <></>}
+        {list ? <CriteriasList /> : <></>}
         {/* ------ Control ------ */}
         {criterias.length > 0 && create ? (
           <Button
@@ -87,8 +77,9 @@ const CreateCriteria: React.FC<props> = ({ create, list }) => {
           <></>
         )}
 
-        <div className=" w-[364px] flex absolute bottom-0 py-3 border-t-[1px] border-primary-60 justify-center">
-          <BtnGroup>
+        <div className="w-full left-0 flex absolute bottom-0 flex-col items-center">
+          <div className="border-t-[1px] border-primary-60 w-5/6"></div>
+          <BtnGroup css="my-3">
             <Link to="/create-criterias">
               <Button title="Create" outline={false} upcase={false} group={true} active={create} />
             </Link>

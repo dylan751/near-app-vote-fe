@@ -33,9 +33,9 @@ export const convertHours = function (seconds: number | undefined): string {
   if (seconds === undefined) return '';
   const date = new Date(seconds);
   const hours = date.getHours().toString();
-  const minus = date.getMinutes().toString();
+  const minus = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()).toString();
 
-  return hours + '-' + minus;
+  return hours + ':' + minus;
 };
 
 export const convertHoursSeconds = function (hours: string): number {

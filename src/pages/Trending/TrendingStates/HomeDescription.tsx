@@ -19,11 +19,11 @@ export const HomeDescription = (props: Props) => {
   const [allCriteria, setAllCriteria] = useRecoilState(allCriteriaState);
 
   return (
-    <section className="w-[366px] min-h-[472px]">
+    <section className="w-full min-h-[400px]">
       {pollInfos && (
         <>
-          <div className="w-[363px] h-[241px] rounded-[32px] object-cover bg-center overflow-hidden my-[20px] bg-[#ccc]">
-            <img src={imgUrl ? imgUrl : descriptionImage} alt="" className="w-[363px] h-[241px] object-cover " />
+          <div className="w-full rounded-[32px] object-cover bg-center overflow-hidden my-[20px] bg-[#ccc]">
+            <img src={imgUrl ? imgUrl : descriptionImage} alt="" className="w-[366px] h-[280px] object-cover " />
           </div>
           <div className="text-[14px]  font-[400] leading-[26px]">
             <div className="mb-[8px] max-h-[80px] overflow-y-auto ">

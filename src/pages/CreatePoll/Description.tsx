@@ -1,10 +1,13 @@
 import { IoImageOutline, IoClose } from 'react-icons/io5';
 import { useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
+import { Web3Storage } from 'web3.storage';
 import ReactLoading from 'react-loading';
 import { Poll } from '../../recoil/create-poll/PollsState';
-import { storage } from '../../firebase';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+
+const api: string | undefined = process.env.REACT_APP_API_TOKEN!;
+// 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEZhM0MwODkyQTYwQTU5YTFBMjcxNjNkZTA1YTVDOTM3ZWYwOTY5QmIiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjAyMDQyNjY1MjIsIm5hbWUiOiJhcHAtdm90ZSJ9.G-VpGTOY2xArszscH8dz9oLBQvWAj8KbnUMeHVSN-kI';
+const client = new Web3Storage({ token: api, endpoint: new URL('https://api.web3.storage') });
 
 const Description: React.FC = () => {
   const [poll, setPoll] = useRecoilState(Poll);
@@ -17,19 +20,10 @@ const Description: React.FC = () => {
     try {
       const file = e.target.files[0];
       setIsLoading(true);
-      const imageRef = ref(storage, `image/${file.name}`);
-      const uploadTask = uploadBytesResumable(imageRef, file);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {},
-        (err) => console.log(err),
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            setLinkImage(url);
-            setIsLoading(false);
-          });
-        },
-      );
+      const added = await client.put([file]);
+      const url = `https://${added}.ipfs.dweb.link/${file.name}`;
+      setLinkImage(url);
+      setIsLoading(false);
     } catch (error) {
       console.log('Error uploading file: ', error);
       setIsLoading(false);
@@ -71,7 +65,7 @@ const Description: React.FC = () => {
           <img
             src={poll.img_url}
             title="Description image"
-            className="w-[366px] h-[280px] z-100 object-coverobject-fill"
+            className="w-[366px] h-[280px] z-100 object-cover object-fill"
           />
           <div className="absolute text-white top-1 right-1 z-100 p-1 bg-[#333] rounded-3xl cursor-pointer hover:bg-[#94acb7]">
             <IoClose

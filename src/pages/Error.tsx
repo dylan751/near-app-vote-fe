@@ -3,7 +3,7 @@ import Button from '../components/Button/Button';
 
 const Error: React.FC = () => {
   return (
-    <div className="flex items-center justify-center flex-col">
+    <div className="flex mt-96 items-center justify-center flex-col">
       <h1 className="font-bold text-[60px]">404</h1>
       <h3 className="text-2xl">oops! Page not found</h3>
       <Link to={'/'}>

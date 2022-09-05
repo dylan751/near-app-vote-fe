@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { IoSave } from 'react-icons/io5';
-import { useRecoilValue } from 'recoil';
-import { allCriteriaState, getCriteriasById } from '../../../recoil/trending/AllCriteria';
-import { allUserState } from '../../../recoil/trending/AllUser';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import Button from '../../../components/Button/Button';
+import { selectedCriteriaOption } from '../../../Model/Poll';
+import { OptionsCall } from '../../../recoil/create-options/OptionsState';
+import { allCriteriaState, findCriteriaById } from '../../../recoil/trending/AllCriteria';
 import { selectOption } from '../../../recoil/trending/Selected';
 import { UserInfo } from '../../../recoil/users/UserInfo';
 import { SelectionBox } from './SelectionBox';
+import ReactLoading from 'react-loading';
 
 export interface criterias {
   id: number;
@@ -18,55 +21,54 @@ export interface criterias {
 interface Props {
   pollId: number;
   criteriaIds: number[];
-  optionId: number;
+  optionIds: number[];
   setCheckUserVoted: React.Dispatch<React.SetStateAction<boolean>>;
   selected: selectOption[];
   setSelected: React.Dispatch<React.SetStateAction<selectOption[]>>;
   setHomeState: React.Dispatch<React.SetStateAction<string>>;
-}
-interface users {
-  id: number;
-  name: string;
+  arrayCriteriaOptionId: selectedCriteriaOption[];
 }
 export const HomeVote = (props: Props) => {
-  const { criteriaIds, pollId, optionId, selected, setSelected, setCheckUserVoted, setHomeState } = props;
-  const [userOptions, setUserOptions] = useState<users[]>([]);
+  const {
+    criteriaIds,
+    pollId,
+    optionIds,
+    selected,
+    setSelected,
+    setCheckUserVoted,
+    setHomeState,
+    arrayCriteriaOptionId,
+  } = props;
   const allCriteria = useRecoilValue(allCriteriaState);
-  const [arrUserId, setArrUserId] = useState<number[]>([]);
-  const allUser = useRecoilValue(allUserState);
+  // const allUser = useRecoilValue(allUserState);
+  const [options, setOptions] = useRecoilState(OptionsCall);
   const userInfo = useRecoilValue(UserInfo);
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    const getOptionById = async () => {
-      const OptionById = await window.contract.get_poll_option_by_id({ poll_option_id: optionId });
-      setArrUserId(OptionById.user_ids);
-    };
-    getOptionById();
-  }, [optionId]);
+  const [optionOfCriteria, setOptionOfCriteria] = useState<any[]>();
 
   useEffect(() => {
-    const handleGetOptionById = (arrUserId: number[], allUser: any[]) => {
-      let newArr = allUser.filter((User) => {
-        return arrUserId.indexOf(User.id as number) >= 0;
+    const handleGetOptionById = (arrOptionIds: number[], listOption: any[]) => {
+      let newArr = listOption.filter((option) => {
+        return arrOptionIds.indexOf(option.id as number) >= 0;
       });
-      return setUserOptions(newArr);
+      return setOptionOfCriteria(newArr);
     };
-    handleGetOptionById(arrUserId, allUser);
-  }, [arrUserId, allUser]);
+    handleGetOptionById(optionIds, options);
+  }, [optionIds, options]);
 
   const handleVoted = async () => {
     setLoading(true);
     let newArrSelected: any[] = [];
     // eslint-disable-next-line array-callback-return
     selected.map((select) => {
-      newArrSelected.push({ criteria_id: select.criteria_id, user_id: select.id });
+      newArrSelected.push({ criteria_id: select.criteria_id, option: select.name });
     });
     if (userInfo.id !== null) {
       await window.contract.vote({
         args: {
           voted_user_id: userInfo.id,
           poll_id: pollId,
-          criteria_user_array: newArrSelected,
+          criteria_option_array: newArrSelected,
         },
         gas: '300000000000000', // attached GAS (optional)
       });
@@ -77,42 +79,56 @@ export const HomeVote = (props: Props) => {
   };
 
   return (
-    <section className="min-h-[472px] w-full relative">
+    <section className="min-h-[472px] w-full relative mt-6">
       {loading === true ? (
         <div className="flex justify-center items-center">
-          <div>
-            <svg className="animate-spin h-5 w-5 mr-3 " viewBox="0 0 24 24"></svg> Voting....
-          </div>
+          <ReactLoading
+            type="bubbles"
+            color="#eee"
+            height={'20%'}
+            width={50}
+            className="absolute top-1 left-1/2 -translate-x-1/2	"
+          />
+
         </div>
       ) : (
         <div className="modal-vote max-h-[400px] overflow-y-auto">
-          {criteriaIds &&
-            getCriteriasById(criteriaIds, allCriteria).map((criteria: criterias, index: number) => (
-              <div className="mb-[40px] w-[100%]" key={criteria.id}>
-                <p className="text-[16px] font-bold">
-                  #{index + 1} {criteria.description}
-                </p>
-                <SelectionBox
-                  criteriaId={criteria.id}
-                  listoption={userOptions}
-                  selected={selected}
-                  setSelected={setSelected}
-                  indexCriteria={index}
-                  lengthCriterial={criteriaIds.length}
-                  pollId={pollId}
-                />
-              </div>
-            ))}
+          {arrayCriteriaOptionId &&
+            arrayCriteriaOptionId.map((item: any, index: number) => {
+              return (
+                <div className="mb-[40px] w-[100%]" key={index}>
+                  <div className="text-[16px] font-bold">
+                    <p>
+                      {' '}
+                      #{index + 1} {findCriteriaById(item.criteria_id, allCriteria)}
+                    </p>
+                  </div>
+                  <SelectionBox
+                    criteriaId={item.criteria_id}
+                    optionId={item.poll_option_id}
+                    selected={selected}
+                    setSelected={setSelected}
+                    indexCriteria={index}
+                    lengthCriterial={criteriaIds.length}
+                    pollId={pollId}
+                  />
+                </div>
+              );
+            })}
           {/* button Save */}
-          <button
-            disabled={selected.length < criteriaIds.length}
-            className={`w-[120px] h-[40px] text-[14px] font-bold ${
-              selected.length < criteriaIds.length ? 'bg-[#ccc]' : 'bg-[rgba(255,255,255,0.1)] hover:opacity-[0.8]'
-            }  rounded-[8px] border-[1px] flex items-center justify-center absolute bottom-0 right-0 cursor-pointer`}
-            onClick={handleVoted}
-          >
-            <IoSave className="text-[16px] mr-[9px]" /> save
-          </button>
+          <Button
+            title={
+              <div className="flex items-center">
+                <IoSave className="text-[16px] mr-[9px]" /> Save
+              </div>
+            }
+            css="absolute bottom-0 right-0"
+            idDisable={selected.length < criteriaIds.length}
+            upcase={true}
+            active={false}
+            outline={true}
+            handle={handleVoted}
+          />
         </div>
       )}
     </section>

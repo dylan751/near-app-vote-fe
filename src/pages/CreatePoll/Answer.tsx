@@ -1,145 +1,79 @@
-import { IoAdd, IoChevronDown, IoChevronUp, IoRefresh } from 'react-icons/io5';
-import Avatar from '../../components/Avatar/Avatar';
-import { useState } from 'react';
-import { OptionsCall } from '../../recoil/create-options/OptionsState';
-import { Poll } from '../../recoil/create-poll/PollsState';
+import { useEffect, useId, useState } from 'react';
+import { IoAdd } from 'react-icons/io5';
 import { useRecoilState } from 'recoil';
-import { CriteriasCall } from '../../recoil/create-criterias/CriteriaStates';
-import { Link } from 'react-router-dom';
-interface propsItemCheck {
-  id: number | undefined;
-  description: string;
+import { selectedCriteriaOption } from '../../Model/Poll';
+import { Poll } from '../../recoil/create-poll/PollsState';
+import CreateAnswer from './CreateAnswer';
+
+interface Props {
+  setCheckArrayOptionCriteria: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const ItemCheck: React.FC<propsItemCheck> = ({ id, description }) => {
+function Answer(props: Props) {
+  const { setCheckArrayOptionCriteria } = props;
   const [poll, setPoll] = useRecoilState(Poll);
-  let check: boolean = false;
-  if (id || id === 0) {
-    check = poll.criteria_ids?.indexOf(id) !== -1;
-  }
+
+  const [arrayCriteriaOptionId, setArrayCriteriaOptionId] = useState<selectedCriteriaOption[]>(
+    (poll?.criteria_option_id_array && poll?.criteria_option_id_array) || [
+      {
+        criteria_id: undefined,
+        poll_option_id: undefined,
+      },
+    ],
+  );
+
+  const order = useId();
+
+  useEffect(() => {
+    if (arrayCriteriaOptionId) {
+      const check = arrayCriteriaOptionId.some(
+        (item) => item.criteria_id === undefined || item.poll_option_id === undefined,
+      );
+      if (check === true) {
+        setCheckArrayOptionCriteria(false);
+      } else {
+        setCheckArrayOptionCriteria(true);
+        setPoll({ ...poll, criteria_option_id_array: arrayCriteriaOptionId });
+      }
+    }
+  }, [arrayCriteriaOptionId]);
+  useEffect(() => {
+    poll?.criteria_option_id_array && setArrayCriteriaOptionId(poll.criteria_option_id_array);
+  }, [poll.criteria_option_id_array]);
+
   return (
-    <div>
-      <input
-        type="checkbox"
-        id={`criteria-${id}`}
-        value={id}
-        className="w-4 h-4 mr-2"
-        onChange={(e) => {
-          const newCriterias: number[] = poll.criteria_ids ? [...poll.criteria_ids] : [];
-          if (e.target.checked) {
-            newCriterias.push(parseInt(e.target.value));
-          } else {
-            const index: any = newCriterias.indexOf(parseInt(e.target.value));
-            newCriterias.splice(index, 1);
-          }
-          setPoll({ ...poll, criteria_ids: newCriterias });
+    <div className="my-3 ">
+      <div className="overflow-y-auto min-h-[300px] max-h-[390px] p-1">
+        {arrayCriteriaOptionId &&
+          arrayCriteriaOptionId.map((item, index: number) => (
+            <CreateAnswer
+              key={order + index}
+              criteria_id={item.criteria_id}
+              option_id={item.poll_option_id}
+              order={index}
+              index={index}
+              arrayCriteriaOptionId={arrayCriteriaOptionId}
+              setArrayCriteriaOptionId={setArrayCriteriaOptionId}
+            />
+          ))}
+      </div>
+
+      <button
+        className="w-full h-12 mt-4 flex justify-center items-center border-[1px] border-primary-80 border-dashed rounded-xl text-primary-80"
+        onClick={() => {
+          setArrayCriteriaOptionId([
+            ...arrayCriteriaOptionId,
+            {
+              criteria_id: undefined,
+              poll_option_id: undefined,
+            },
+          ]);
         }}
-        checked={check}
-      />
-      <label htmlFor={`criteria-${id}`} className="font-medium text-base cursor-pointer">
-        {description}
-      </label>
+      >
+        <IoAdd className="mr-4 h-6 w-6" />
+        Add
+      </button>
     </div>
   );
-};
+}
 
-const Answer: React.FC = () => {
-  const [hideOptions, setHideOptions] = useState<Boolean>(false);
-  const [options, setOptions] = useRecoilState(OptionsCall);
-  const [criteriasCall] = useRecoilState(CriteriasCall);
-  const [poll, setPoll] = useRecoilState(Poll);
-  const handleSelectOption = (index: number) => {
-    let newOptions = [...options];
-    let option = newOptions.splice(index, 1);
-    newOptions.unshift(option[0]);
-    setOptions(newOptions);
-    setHideOptions(false);
-  };
-  return (
-    <>
-      <div className="mt-6 flex justify-between mb-1">
-        <label>Choose Answer options</label>
-        {/* <div className="flex">
-          <button className="w-[18px] h-[18px] flex justify-center items-center p-[2px] bg-primary-20 rounded mr-2 text-primary-80">
-            <IoPencil className="" />
-          </button>
-          <Link
-            to={'/createOptions'}
-            className="w-[18px] h-[18px] flex justify-center items-center p-[2px] bg-primary-20 rounded text-primary-80"
-          >
-            <IoAdd />
-          </Link>
-        </div> */}
-      </div>
-
-      {/* ====== Options ======= */}
-      <div className="w-full h-10 bg-primary-20 rounded-xl px-3 relative flex cursor-pointer">
-        <div
-          className="flex items-center justify-between w-full"
-          onClick={() => {
-            setHideOptions(!hideOptions);
-          }}
-        >
-          <Avatar name={options[0]?.title} size="small" note={options[0]?.description} />
-          {hideOptions ? <IoChevronUp /> : <IoChevronDown />}
-        </div>
-        {/* Thay thế cho select option */}
-        <div
-          className="w-full absolute top-10 left-0 bg-greenL rounded-xl overflow-hidden max-h-48 overflow-y-auto"
-          hidden={!(hideOptions && true)}
-        >
-          {options &&
-            options.map((item, index) => {
-              if (index !== 0)
-                return (
-                  <div key={index} onClick={() => handleSelectOption(index)}>
-                    <Avatar
-                      name={item.title}
-                      size="small"
-                      note={item.description}
-                      css="px-2 hover:bg-primary-100 py-1"
-                    />
-                  </div>
-                );
-              else return null;
-            })}
-        </div>
-      </div>
-
-      {/* List tiêu chí */}
-      <div className="mt-10 flex justify-between mb-1 flex-col">
-        <div className="flex justify-between mb-1">
-          <label>Choose Answer Criterias</label>
-          <div className="flex ">
-            <button
-              className="w-[18px] h-[18px] flex justify-center items-center p-[2px] bg-primary-20 rounded text-primary-80 mr-2"
-              title="Reset all"
-              onClick={() => {
-                setPoll({ ...poll, criteria_ids: [] });
-              }}
-            >
-              <IoRefresh />
-            </button>
-            {/* <Link
-              to={'/createCriteria'}
-              className="w-[18px] h-[18px] flex justify-center items-center p-[2px] bg-primary-20 rounded text-primary-80"
-              title="Add criteria"
-            >
-              <IoAdd />
-            </Link> */}
-          </div>
-        </div>
-        <div className="max-h-[340px] overflow-auto">
-          {criteriasCall.length > 0 ? (
-            criteriasCall.map((item) => {
-              return <ItemCheck key={item.id} id={item.id} description={item.description} />;
-            })
-          ) : (
-            <></>
-          )}
-        </div>
-      </div>
-    </>
-  );
-};
-
-export { Answer, ItemCheck };
+export default Answer;
